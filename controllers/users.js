@@ -10,29 +10,38 @@ const router = express.Router();
 
 router.post('/signup', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, email, password, role } = req.body;
 
-    const existingUser = await User.findOne({ username });
-
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
-      return res.status(400).json({ error: 'Something went wrongm, try again.' });
+      return res.status(400).json({ error: 'Username or Email already exists' });
     }
 
     const hashedPassword = bcrypt.hashSync(password, parseInt(process.env.SALT_ROUNDS));
 
-    const user = await User.create({ username, hashedPassword });
+
+    const user = await User.create({ 
+      username, 
+      email, 
+      hashedPassword,  
+      role 
+    });
 
     const token = jwt.sign(
       {
         _id: user._id,
         username: user.username,
+        role: user.role
       },
       process.env.JWT_SECRET
     );
 
-    return res.status(201).json({ user, token });
+    return res.status(201).json({ 
+      user: { _id: user._id, username: user.username, email: user.email, role: user.role }, 
+      token 
+    });
   } catch (error) {
-    res.status(400).json({ error: 'Something wen wrong, try again.' });
+    res.status(500).json({ error: 'Something went wrong, try again.'});
   }
 });
 
@@ -56,11 +65,15 @@ router.post('/signin', async (req, res) => {
       {
         _id: existingUser._id,
         username: existingUser.username,
+        role: existingUser.role 
       },
       process.env.JWT_SECRET
     );
 
-    return res.status(200).json({ user: existingUser, token });
+    return res.status(200).json({  
+      user: { _id: existingUser._id, username: existingUser.username, email: existingUser.email, role: existingUser.role }, 
+      token 
+    });
   } catch (error) {
     res.status(400).json({ error: 'Something went wrong, try again.' });
   }
