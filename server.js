@@ -14,7 +14,8 @@ const verifyToken = require('./middleware/verify-token');
 const testJWTRouter = require('./controllers/test-jwt');
 const usersRouter = require('./controllers/users');
 const profilesRouter = require('./controllers/profiles');
-const recipesRouter = require('./controllers/recipes')
+const bookingsRouter = require('./controllers/bookings'); 
+const placesRouter = require('./controllers/places'); 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -26,9 +27,9 @@ app.use(express.json());
 app.use('/test-jwt', testJWTRouter); // REMOVE FOR TEST ONLY
 app.use('/users', usersRouter);
 
-//Recipes
-app.use("/recipes", recipesRouter)
-
+// Bookings and Places
+app.use('/bookings', bookingsRouter); // Add route for bookings
+app.use('/places', placesRouter); // Add route for places
 
 // Protected Routes
 // app.use(verifyToken)
