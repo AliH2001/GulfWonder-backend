@@ -6,6 +6,7 @@ dotenv.config();
 
 require('./config/database');
 const express = require('express');
+const path = require('path'); 
 
 // Auth
 const verifyToken = require('./middleware/verify-token');
@@ -14,27 +15,31 @@ const verifyToken = require('./middleware/verify-token');
 const testJWTRouter = require('./controllers/test-jwt');
 const usersRouter = require('./controllers/users');
 const profilesRouter = require('./controllers/profiles');
-const bookingsRouter = require('./controllers/bookings'); 
-const placesRouter = require('./controllers/places'); 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const bookingsRouter = require('./controllers/bookings');
+const placesRouter = require('./controllers/places');
 
+const app = express();
+const PORT = process.env.PORT || 9000;
+
+// Middleware
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
-// Routes
-app.use('/test-jwt', testJWTRouter); // REMOVE FOR TEST ONLY
+// API Routes
+app.use('/test-jwt', testJWTRouter);
 app.use('/users', usersRouter);
+app.use('/bookings', bookingsRouter); 
+app.use('/places', placesRouter); 
+app.use('/profiles', verifyToken, profilesRouter); 
 
-// Bookings and Places
-app.use('/bookings', bookingsRouter); // Add route for bookings
-app.use('/places', placesRouter); // Add route for places
+// Serve React build files for frontend routes
+app.use(express.static(path.join(__dirname, 'client/build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+});
 
-// Protected Routes
-// app.use(verifyToken)
-app.use('/profiles', profilesRouter);
-
+// Start server
 app.listen(PORT, () => {
-  console.log('The express app is ready!');
+  console.log(`The express app is ready on port ${PORT}!`);
 });

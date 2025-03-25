@@ -44,6 +44,7 @@ const placeSchema = new mongoose.Schema({
     required: true,
   },
   reviews: [reviewSchema],
+  
 });
 
 module.exports = mongoose.model('Place', placeSchema);
