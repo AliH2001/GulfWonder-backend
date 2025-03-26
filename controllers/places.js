@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 router.get('/:placeId', async (req, res) => {
   try {
     const place = await Place.findById(req.params.placeId).populate('author').populate({
-      path: 'comments',
+      path: 'reviews',
       populate: { path: 'author', select: 'username' },
     });
     res.status(200).json(place);
@@ -30,6 +30,9 @@ router.get('/:placeId', async (req, res) => {
     res.status(500).json(error);
   }
 });
+
+
+
 
 // ============= Protected Routes ===============
 

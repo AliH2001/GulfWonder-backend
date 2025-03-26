@@ -18,8 +18,9 @@ const profilesRouter = require('./controllers/profiles');
 const bookingsRouter = require('./controllers/bookings');
 const placesRouter = require('./controllers/places');
 
+
 const app = express();
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT || 2000;
 
 // Middleware
 app.use(cors());
@@ -34,10 +35,10 @@ app.use('/places', placesRouter);
 app.use('/profiles', verifyToken, profilesRouter); 
 
 // Serve React build files for frontend routes
-app.use(express.static(path.join(__dirname, 'client/build')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-});
+// app.use(express.static(path.join(__dirname, 'client/build')));
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+// });
 
 // Start server
 app.listen(PORT, () => {
