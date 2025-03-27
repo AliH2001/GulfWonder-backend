@@ -81,45 +81,31 @@ router.delete('/:placeId', async (req, res) => {
   }
 });
 
-// ============= Comments ===============
+// ============= Reviews ===============
 
+// Add a review on a place
 router.post('/:placeId/reviews', async (req, res) => {
   try {
-    console.log("Received request for adding review");
-    console.log("Place ID:", req.params.placeId);
-    console.log("Request body:", req.body);
 
-    const place = await Place.findById(req.params.placeId);
-    if (!place) {
-      return res.status(404).json({ message: 'Place not found' });
-    }
-
-    // Ensure reviews array exists (it should always exist due to schema)
-    if (!place.reviews) {
-      place.reviews = [];
-    }
-
-    // Add author to request body
     req.body.author = req.user._id;
 
-    // Push the new review into the reviews array
+    const place = await Place.findById(req.params.placeId);
     place.reviews.push(req.body);
     await place.save();
-
-    res.status(200).json(place.reviews[place.reviews.length - 1]);
+    const newReview = place.reviews[place.reviews.length - 1];
+    newReview._doc.author = req.user;
+    res.status(200).json(newReview);
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
+    res.status(500).json(error);
   }
 });
 
-
-// Update a comment on a place
-router.put('/:placeId/comments/:commentId', async (req, res) => {
+// Update a review on a place
+router.put('/:placeId/reviews/:reviewId', async (req, res) => {
   try {
     const place = await Place.findById(req.params.placeId);
-    const comment = place.comments.id(req.params.commentId);
-    comment.text = req.body.text;
+    const review = place.reviews.id(req.params.reviewId);
+    review.text = req.body.text;
     await place.save();
     res.status(200).json({ message: 'Ok' });
   } catch (error) {
@@ -128,10 +114,10 @@ router.put('/:placeId/comments/:commentId', async (req, res) => {
 });
 
 // Delete a comment from a place
-router.delete('/:placeId/comments/:commentId', async (req, res) => {
+router.delete('/:placeId/reviews/:reviewId', async (req, res) => {
   try {
     const place = await Place.findById(req.params.placeId);
-    place.comments.remove({ _id: req.params.commentId });
+    place.reviews.remove({ _id: req.params.reviewId });
     await place.save();
     res.status(200).json({ message: 'Ok' });
   } catch (error) {
